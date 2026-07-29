@@ -48,3 +48,9 @@ Temporary Items
 
 #temp images
 */imagetemp/*.png
+
+# ---- termgrapher ----
+node_modules/
+package-lock.json
+*.six
+shots/
