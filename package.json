@@ -1,0 +1,36 @@
+{
+  "name": "nzgrapher-terminal-edition",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NZGrapher Terminal Edition - render NZGrapher statistical charts from the terminal",
+  "bin": {
+    "nzgrapher": "term/cli.js"
+  },
+  "main": "term/render.js",
+  "scripts": {
+    "controls": "node term/extract-controls.js",
+    "smoke": "node term/smoke.js",
+    "test": "node term/smoke.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jedbillyb/NZGrapher-Terminal-Edition.git"
+  },
+  "keywords": [
+    "nzgrapher",
+    "statistics",
+    "ncea",
+    "terminal",
+    "sixel",
+    "charts"
+  ],
+  "author": "",
+  "license": "SEE LICENCE IN LICENCE.md",
+  "bugs": {
+    "url": "https://github.com/jedbillyb/NZGrapher-Terminal-Edition/issues"
+  },
+  "homepage": "https://github.com/jedbillyb/NZGrapher-Terminal-Edition#readme",
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.3"
+  }
+}

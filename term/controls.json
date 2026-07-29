@@ -1,0 +1,1291 @@
+{
+	"textarea": {
+		"kind": "text",
+		"default": ""
+	},
+	"linkarea": {
+		"kind": "text",
+		"default": ""
+	},
+	"filenew": {
+		"kind": "text",
+		"default": ""
+	},
+	"samvar-": {
+		"kind": "text",
+		"default": ""
+	},
+	"cicoveragesamplesize": {
+		"kind": "text",
+		"default": "10"
+	},
+	"eventrecordercountof": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"eventrecorderdesiredoutcome": {
+		"kind": "text",
+		"default": ""
+	},
+	"eventrecordercountof2": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"eventrecorderdesiredoutcome2": {
+		"kind": "text",
+		"default": ""
+	},
+	"eventrecordersum": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"eventrecorderoutcomes": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"width": {
+		"kind": "text",
+		"default": "500"
+	},
+	"height": {
+		"kind": "text",
+		"default": "500"
+	},
+	"arrows": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"colorarrows": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"regression": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"correlationcoefficient": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"boxplot": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"highboxplot": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"hidepoints": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"shape": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"violin": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"beeswarm": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"stripgraph": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"boxnowhisker": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"boxnooutlier": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"mad": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"madnumbers": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"dbm": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"dbmnumbers": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"interval": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"intervallim": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"intervalhighlight": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"labels": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"meandot": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"quadrant": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"quadrantratio": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"bootstraptrendline": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"stackdots": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"jitter": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"quadratic": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"cubic": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"exp": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"log": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"pow": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"yx": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"colourbydistance": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"colourbydistancelimit": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"stackgraphs": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"showdots": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"seasonalcolour": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"differentaxis": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"weightedaverage": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "no"
+	},
+	"residualsforcex": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"longtermtrend": {
+		"kind": "checkbox",
+		"default": true,
+		"value": "yes"
+	},
+	"seasonal": {
+		"kind": "checkbox",
+		"default": true,
+		"value": "yes"
+	},
+	"startfinish": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"morecats": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"gridlines": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"percent100": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"relativefrequency": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"relativewidth": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"donut": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"normaldist": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"rectangulardist": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"triangulardist": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"poissondist": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"binomialdist": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"invert": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"thicklines": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"viridis": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"removedpoints": {
+		"kind": "checkbox",
+		"default": true,
+		"value": "yes"
+	},
+	"customequationdots": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"customequationequation": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"customequationdots2": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"customequationequation2": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"customequationdots3": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"customequationequation3": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"grayscale": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"title": {
+		"kind": "text",
+		"default": ""
+	},
+	"xaxis": {
+		"kind": "text",
+		"default": "X Axis Title"
+	},
+	"yaxis": {
+		"kind": "text",
+		"default": "Y Axis Title"
+	},
+	"colorlabel": {
+		"kind": "text",
+		"default": "Color Label"
+	},
+	"size": {
+		"kind": "text",
+		"default": "7"
+	},
+	"soliddots": {
+		"kind": "checkbox",
+		"default": true,
+		"value": "yes"
+	},
+	"trans": {
+		"kind": "text",
+		"default": "50"
+	},
+	"regroup-": {
+		"kind": "text",
+		"default": ""
+	},
+	"sample-": {
+		"kind": "text",
+		"default": ""
+	},
+	"numberofrowstodelete": {
+		"kind": "text",
+		"default": ""
+	},
+	"newvarca": {
+		"kind": "text",
+		"default": ""
+	},
+	"newvarcb": {
+		"kind": "text",
+		"default": ""
+	},
+	"newvar4func": {
+		"kind": "text",
+		"default": ""
+	},
+	"filtermin": {
+		"kind": "text",
+		"default": ""
+	},
+	"filtermax": {
+		"kind": "text",
+		"default": ""
+	},
+	"encodelength": {
+		"kind": "text",
+		"default": ""
+	},
+	"encodeseasons": {
+		"kind": "text",
+		"default": ""
+	},
+	"encodestart": {
+		"kind": "text",
+		"default": ""
+	},
+	"boxplotmin": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"boxplotmax": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"textsize": {
+		"kind": "number",
+		"default": "13"
+	},
+	"smoothingpower": {
+		"kind": "number",
+		"default": "3"
+	},
+	"scatplotminx": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"scatplotmaxx": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"scatplotminy": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"scatplotmaxy": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"scatplotnamex": {
+		"kind": "text",
+		"default": ""
+	},
+	"scatplotnamey": {
+		"kind": "text",
+		"default": ""
+	},
+	"timeseriesminx": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"timeseriesmaxx": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"timeseriesminy": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"timeseriesmaxy": {
+		"kind": "text",
+		"default": "auto"
+	},
+	"probabilitysimulationcountof": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"probabilitysimulationdesiredoutcome": {
+		"kind": "text",
+		"default": ""
+	},
+	"probabilitysimulationcountof2": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"probabilitysimulationdesiredoutcome2": {
+		"kind": "text",
+		"default": ""
+	},
+	"probabilitysimulationsum": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"probabilitysimulationoutcomes": {
+		"kind": "checkbox",
+		"default": false,
+		"value": "yes"
+	},
+	"probabilitysimulationtrials": {
+		"kind": "number",
+		"default": "30"
+	},
+	"dataset": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "ERROR",
+				"label": "ERROR"
+			},
+			{
+				"value": "$file",
+				"label": "$file"
+			}
+		],
+		"default": "$file"
+	},
+	"samvaron": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"viewsinglegroupcategory": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"bssvteachselect": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "median",
+				"label": "Median"
+			},
+			{
+				"value": "mean",
+				"label": "Mean"
+			}
+		],
+		"default": "median"
+	},
+	"cicoveragetype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "informalci",
+				"label": "Informal CI"
+			},
+			{
+				"value": "bootstrap",
+				"label": "Bootstrap CI - Median"
+			}
+		],
+		"default": "informalci"
+	},
+	"simmoddatatype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "numericcontinuous",
+				"label": "Numeric - Continuous"
+			},
+			{
+				"value": "numericdiscrete",
+				"label": "Numeric - Whole Number"
+			},
+			{
+				"value": "categorical",
+				"label": "Categorical"
+			}
+		],
+		"default": "numericcontinuous"
+	},
+	"simmodtype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "uniform",
+				"label": "Uniform"
+			},
+			{
+				"value": "triangular",
+				"label": "Triangular"
+			},
+			{
+				"value": "normal",
+				"label": "Normal"
+			},
+			{
+				"value": "poisson",
+				"label": "Poisson"
+			},
+			{
+				"value": "binomial",
+				"label": "Binomial"
+			},
+			{
+				"value": "equallylikely",
+				"label": "Equally Likely"
+			}
+		],
+		"default": "uniform"
+	},
+	"xvar": {
+		"kind": "select",
+		"options": [
+			{
+				"value": " ",
+				"label": ""
+			}
+		],
+		"default": " "
+	},
+	"type": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "newabout",
+				"label": "About"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newpairsplot",
+				"label": "Pairs Plot"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newdotplot",
+				"label": "Dot Plot (and Box and Whisker)"
+			},
+			{
+				"value": "newbargraph",
+				"label": "Bar Graph"
+			},
+			{
+				"value": "newbargraphf",
+				"label": "Bar Graph - Summary Data"
+			},
+			{
+				"value": "newhistogram",
+				"label": "Histogram"
+			},
+			{
+				"value": "newhistogramf",
+				"label": "Histogram - Summary Data"
+			},
+			{
+				"value": "newpiechart",
+				"label": "Pie Chart"
+			},
+			{
+				"value": "newscatter",
+				"label": "Scatter Graph"
+			},
+			{
+				"value": "newgriddensity",
+				"label": "Grid Density Plot"
+			},
+			{
+				"value": "newresiduals",
+				"label": "Residuals Plot"
+			},
+			{
+				"value": "newrunningproportion",
+				"label": "Running Proportion"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newbootstrap",
+				"label": "Bootstrap Single Variable"
+			},
+			{
+				"value": "newbootstrapcimedian",
+				"label": "Bootstrap Confidence Interval - Median"
+			},
+			{
+				"value": "newbootstrapcimean",
+				"label": "Bootstrap Confidence Interval - Mean"
+			},
+			{
+				"value": "newbsteach",
+				"label": "Boostrap - Teaching"
+			},
+			{
+				"value": "newbssvteach",
+				"label": "Bootstrap Single Variable - Teaching"
+			},
+			{
+				"value": "newcicoverage",
+				"label": "CI Coverage - Teaching"
+			},
+			{
+				"value": "newsimmod",
+				"label": "Simulation Model - Teaching"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newrerandmedian",
+				"label": "Re-Randomisation - Median"
+			},
+			{
+				"value": "newrerandmean",
+				"label": "Re-Randomisation - Mean"
+			},
+			{
+				"value": "newrerandteach",
+				"label": "Re-Randomisation - Teaching"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newpairedexperiment",
+				"label": "Paired Experiment Dot Plot (and Arrows Graph)"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newtimeseries",
+				"label": "Time Series"
+			},
+			{
+				"value": "newtimeseriesrecomp",
+				"label": "&nbsp;&nbsp;&nbsp;Re-Composition"
+			},
+			{
+				"value": "newtimeseriesseasonaleffects",
+				"label": "&nbsp;&nbsp;&nbsp;Seasonal Effects"
+			},
+			{
+				"value": "newtimeseriessforecasts",
+				"label": "&nbsp;&nbsp;&nbsp;Forecasts"
+			},
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "newcontributors",
+				"label": "Contributors"
+			},
+			{
+				"value": "newlicence",
+				"label": "Licence"
+			},
+			{
+				"value": "newchangelog",
+				"label": "Change Log"
+			},
+			{
+				"value": "newupdate",
+				"label": "Update"
+			}
+		],
+		"default": "newabout"
+	},
+	"yvar": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"color": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"zvar": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"colourscale": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Rainbow",
+				"label": "Rainbow"
+			},
+			{
+				"value": "Viridis",
+				"label": "Viridis"
+			}
+		],
+		"default": "Rainbow"
+	},
+	"btype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Median",
+				"label": "Median"
+			},
+			{
+				"value": "Mean",
+				"label": "Mean"
+			},
+			{
+				"value": "IQR",
+				"label": "IQR"
+			},
+			{
+				"value": "Standard Deviation",
+				"label": "Standard Deviation"
+			}
+		],
+		"default": "Median"
+	},
+	"halfquarter": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "0",
+				"label": "None"
+			},
+			{
+				"value": "1",
+				"label": "Top ½, Bottom ¾"
+			},
+			{
+				"value": "2",
+				"label": "Bottom ½, Top ¾"
+			},
+			{
+				"value": "3",
+				"label": "Top ¾, Bottom ½"
+			},
+			{
+				"value": "4",
+				"label": "Bottom ¾, Top ½"
+			},
+			{
+				"value": "5",
+				"label": "Top ¾, Bottom ¾"
+			},
+			{
+				"value": "6",
+				"label": "Bottom ¾, Top ¾"
+			}
+		],
+		"default": "0"
+	},
+	"colourbydistancelimitlimit": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "1",
+				"label": "1"
+			},
+			{
+				"value": "2",
+				"label": "2"
+			},
+			{
+				"value": "3",
+				"label": "3"
+			},
+			{
+				"value": "4",
+				"label": "4"
+			},
+			{
+				"value": "5",
+				"label": "5"
+			}
+		],
+		"default": "1"
+	},
+	"regtype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Linear",
+				"label": "Linear"
+			},
+			{
+				"value": "Quadratic",
+				"label": "Quadratic"
+			},
+			{
+				"value": "Cubic",
+				"label": "Cubic"
+			},
+			{
+				"value": "y=a*exp(b*x)",
+				"label": "y=a*exp(b*x)"
+			},
+			{
+				"value": "y=a*ln(x)+b",
+				"label": "y=a*ln(x)+b"
+			},
+			{
+				"value": "y=a*x^b",
+				"label": "y=a*x^b"
+			}
+		],
+		"default": "Linear"
+	},
+	"addmult": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Additive",
+				"label": "Additive"
+			},
+			{
+				"value": "Multiplicative",
+				"label": "Multiplicative"
+			}
+		],
+		"default": "Additive"
+	},
+	"newrunningproportionsuccess": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"horizontalerrorbars": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"verticalerrorbars": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"standardsize": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Auto",
+				"label": "Auto"
+			},
+			{
+				"value": "Auto - High Res",
+				"label": "Auto - High Res"
+			},
+			{
+				"value": "Auto - Server Side Processing",
+				"label": "Auto - Server Side Processing"
+			},
+			{
+				"value": "Standard",
+				"label": "Standard"
+			},
+			{
+				"value": "Short",
+				"label": "Short"
+			},
+			{
+				"value": "Small",
+				"label": "Small"
+			}
+		],
+		"default": "Auto"
+	},
+	"regroupwith": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"sampleon": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"columndel": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"orderby": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvar1": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarcom": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "+",
+				"label": "+"
+			},
+			{
+				"value": "-",
+				"label": "-"
+			},
+			{
+				"value": "&times;",
+				"label": "&times;"
+			},
+			{
+				"value": "&divide;",
+				"label": "&divide;"
+			}
+		],
+		"default": "+"
+	},
+	"newvar2": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarcx": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarcmd": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "&times;",
+				"label": "&times;"
+			},
+			{
+				"value": "&divide;",
+				"label": "&divide;"
+			}
+		],
+		"default": "&times;"
+	},
+	"newvarcas": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "+",
+				"label": "+"
+			},
+			{
+				"value": "-",
+				"label": "-"
+			}
+		],
+		"default": "+"
+	},
+	"newvarc3var": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc4var": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc5var1": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc5var2": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc5var3": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc5var4": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"newvarc5var5": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"sortby": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"filterby": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"converttimecol": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"converttimeto": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Seconds",
+				"label": "Seconds"
+			},
+			{
+				"value": "Minutes",
+				"label": "Minutes"
+			},
+			{
+				"value": "Hours",
+				"label": "Hours"
+			},
+			{
+				"value": "Days",
+				"label": "Days"
+			}
+		],
+		"default": "Seconds"
+	},
+	"encodetimecol": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"encodetimesumavg": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "avg",
+				"label": "Average (Mean)"
+			},
+			{
+				"value": "sum",
+				"label": "Sum"
+			}
+		],
+		"default": "avg"
+	},
+	"encodetimetype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "Quarter",
+				"label": "Quarter"
+			},
+			{
+				"value": "Month",
+				"label": "Month"
+			},
+			{
+				"value": "Day",
+				"label": "Day"
+			},
+			{
+				"value": "Hour",
+				"label": "Hour"
+			},
+			{
+				"value": "Custom",
+				"label": "Custom"
+			}
+		],
+		"default": "Quarter"
+	},
+	"encodemult": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "1000",
+				"label": "Seconds"
+			},
+			{
+				"value": "60000",
+				"label": "Minutes"
+			},
+			{
+				"value": "3600000",
+				"label": "Hours"
+			},
+			{
+				"value": "86400000",
+				"label": "Days"
+			}
+		],
+		"default": "1000"
+	},
+	"wizardx": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"wizardxtype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "Numerical",
+				"label": "Numerical"
+			},
+			{
+				"value": "Categorical",
+				"label": "Categorical"
+			},
+			{
+				"value": "Time Series",
+				"label": "Time Series"
+			}
+		],
+		"default": ""
+	},
+	"wizardy": {
+		"kind": "select",
+		"options": [],
+		"default": ""
+	},
+	"wizardytype": {
+		"kind": "select",
+		"options": [
+			{
+				"value": "",
+				"label": ""
+			},
+			{
+				"value": "Numerical",
+				"label": "Numerical"
+			},
+			{
+				"value": "Categorical",
+				"label": "Categorical"
+			}
+		],
+		"default": ""
+	}
+}
