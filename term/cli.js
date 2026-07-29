@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /*
- * termgrapher — render NZGrapher charts from the terminal.
+ * NZGrapher Terminal Edition — render NZGrapher charts from the terminal.
  *
  * Output routing (all three produce the same pixels, since the drawing is done
  * by upstream's own engine):
@@ -15,7 +15,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const { render, graphTypes } = require('./render.js');
-const { loadDataset } = require('./dataset.js');
+const { loadDataset, stratifiedSample } = require('./dataset.js');
 const { encodeSixel, queryTerminalPixels } = require('./sixel.js');
 const CONTROLS = require('./controls.json');
 
@@ -23,9 +23,9 @@ const ROOT = path.join(__dirname, '..');
 const DATASET_DIR = path.join(ROOT, 'grapher', 'datasets');
 
 function usage() {
-	return `termgrapher — NZGrapher charts in your terminal
+	return `NZGrapher Terminal Edition — NZGrapher charts in your terminal
 
-usage: termgrapher <data.csv> [options]
+usage: nzgrapher <data.csv> [options]
 
   -t, --type <name>     graph type (default: dotplot)
   -x, --x <column>      variable 1  (numeric for most graphs)
@@ -45,6 +45,14 @@ usage: termgrapher <data.csv> [options]
       --on  <id>        tick a checkbox option (repeatable)
       --off <id>        untick a checkbox option (repeatable)
 
+ sampling (draw a sample to represent a population):
+      --sample-by <cols>    comma-separated strata columns, e.g. Species,Gender
+      --sample-n <n>        rows per stratum
+      --sample-prop <f>     fraction of each stratum, 0-1 (proportional)
+      --sample-size <spec>  explicit counts: "Tok / M=5,Tok / F=5"
+      --seed <v>            reproducible draw
+      --show-sample         print the strata table to stderr
+
       --list-types      list graph types
       --list-columns    list columns in the dataset
       --list-datasets   list the bundled datasets
@@ -55,9 +63,9 @@ Graph types accept short names: 'dotplot' == 'newdotplot'.
 Datasets resolve from the bundled set by name, e.g. 'Cars'.
 
 examples:
-  termgrapher Cars -x Price
-  termgrapher Cars -t scatter -x Weight -y Horsepower --on regression
-  termgrapher Cars -t rerandmedian -x Price -y origin --out rr.png
+  nzgrapher Cars -x Price
+  nzgrapher Cars -t scatter -x Weight -y Horsepower --on regression
+  nzgrapher Cars -t rerandmedian -x Price -y origin --out rr.png
 `;
 }
 
@@ -70,6 +78,7 @@ function parseArgs(argv) {
 		'-t', '--type', '-x', '--x', '-y', '--y', '-z', '--z', '-c', '--color',
 		'-W', '--width', '-H', '--height', '-s', '--scale', '-o', '--out',
 		'--set', '--on', '--off',
+		'--sample-by', '--sample-n', '--sample-prop', '--sample-size', '--seed',
 	]);
 
 	for (let i = 0; i < argv.length; i++) {
@@ -82,6 +91,7 @@ function parseArgs(argv) {
 		if (a === '--list-columns') { opts.listColumns = true; continue; }
 		if (a === '--list-datasets') { opts.listDatasets = true; continue; }
 		if (a === '--list-options') { opts.listOptions = true; continue; }
+		if (a === '--show-sample') { opts.showSample = true; continue; }
 
 		if (needsValue.has(a)) {
 			const v = argv[++i];
@@ -98,6 +108,23 @@ function parseArgs(argv) {
 				case '-o': case '--out': opts.out = v; break;
 				case '--on': opts.on.push(v); break;
 				case '--off': opts.off.push(v); break;
+				case '--sample-by':
+					opts.sampleBy = v.split(',').map((s) => s.trim()).filter(Boolean);
+					break;
+				case '--sample-n': opts.sampleN = Number(v); break;
+				case '--sample-prop': opts.sampleProp = Number(v); break;
+				case '--seed': opts.seed = v; break;
+				case '--sample-size': {
+					opts.sampleSizes = opts.sampleSizes || {};
+					// "Tok / M=5,Tok / F=5" — split on the last '=' of each entry so
+					// stratum names containing '=' still work
+					for (const part of v.split(',')) {
+						const eq = part.lastIndexOf('=');
+						if (eq < 0) throw new Error(`--sample-size expects name=count, got '${part}'`);
+						opts.sampleSizes[part.slice(0, eq).trim()] = Number(part.slice(eq + 1));
+					}
+					break;
+				}
 				case '--set': {
 					const eq = v.indexOf('=');
 					if (eq < 0) throw new Error(`--set expects key=value, got '${v}'`);
@@ -181,7 +208,7 @@ async function main() {
 	try {
 		opts = parseArgs(process.argv.slice(2));
 	} catch (e) {
-		process.stderr.write(`termgrapher: ${e.message}\n`);
+		process.stderr.write(`nzgrapher: ${e.message}\n`);
 		process.exit(2);
 	}
 
@@ -220,7 +247,7 @@ async function main() {
 	try {
 		datasetPath = resolveDataset(opts.dataset);
 	} catch (e) {
-		process.stderr.write(`termgrapher: ${e.message}\n`);
+		process.stderr.write(`nzgrapher: ${e.message}\n`);
 		process.exit(1);
 	}
 
@@ -240,7 +267,7 @@ async function main() {
 	try {
 		type = resolveType(opts.type);
 	} catch (e) {
-		process.stderr.write(`termgrapher: ${e.message}\n`);
+		process.stderr.write(`nzgrapher: ${e.message}\n`);
 		process.exit(1);
 	}
 
@@ -250,10 +277,39 @@ async function main() {
 	for (const id of opts.on) check[id] = true;
 	for (const id of opts.off) check[id] = false;
 
+	// Draw the sample before rendering, so the graph sees only the sampled rows —
+	// the same order of operations as the web version.
+	let data;
+	try {
+		data = loadDataset(datasetPath);
+		const wantsSample = opts.sampleBy || opts.sampleN !== undefined
+			|| opts.sampleProp !== undefined || opts.sampleSizes;
+		if (wantsSample) {
+			const { dataset: sampled, strata } = stratifiedSample(data, opts.sampleBy || [], {
+				n: opts.sampleN,
+				prop: opts.sampleProp,
+				sizes: opts.sampleSizes || {},
+				seed: opts.seed,
+			});
+			if (opts.showSample) {
+				const by = (opts.sampleBy || []).join(' x ') || '(whole dataset)';
+				process.stderr.write(`sample stratified by ${by}${opts.seed !== undefined ? `, seed ${opts.seed}` : ''}\n`);
+				for (const s of strata) {
+					process.stderr.write(`  ${s.key.padEnd(24)} ${String(s.sampled).padStart(4)} of ${s.available}\n`);
+				}
+				process.stderr.write(`  ${'total'.padEnd(24)} ${String(sampled.rowCount).padStart(4)} of ${data.rowCount}\n`);
+			}
+			data = sampled;
+		}
+	} catch (e) {
+		process.stderr.write(`nzgrapher: ${e.message}\n`);
+		process.exit(1);
+	}
+
 	let result;
 	try {
 		result = render({
-			dataset: datasetPath,
+			dataset: data,
 			type,
 			width,
 			height,
@@ -264,7 +320,7 @@ async function main() {
 			verbose: opts.verbose,
 		});
 	} catch (e) {
-		process.stderr.write(`termgrapher: render failed: ${e.message}\n`);
+		process.stderr.write(`nzgrapher: render failed: ${e.message}\n`);
 		process.exit(1);
 	}
 
@@ -280,7 +336,7 @@ async function main() {
 	}
 
 	if (opts.open) {
-		const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'termgrapher-')), 'chart.png');
+		const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'nzgrapher-')), 'chart.png');
 		fs.writeFileSync(file, png);
 		openFile(file);
 		process.stderr.write(`opened ${file}\n`);
@@ -294,12 +350,12 @@ async function main() {
 	tctx.fillStyle = '#ffffff';
 	tctx.fillRect(0, 0, width, height);
 	tctx.drawImage(result.canvas, 0, 0, width, height);
-	const data = tctx.getImageData(0, 0, width, height).data;
+	const pixels = tctx.getImageData(0, 0, width, height).data;
 
-	process.stdout.write(encodeSixel(data, width, height) + '\n');
+	process.stdout.write(encodeSixel(pixels, width, height) + '\n');
 }
 
 main().catch((e) => {
-	process.stderr.write(`termgrapher: ${e.stack || e.message}\n`);
+	process.stderr.write(`nzgrapher: ${e.stack || e.message}\n`);
 	process.exit(1);
 });

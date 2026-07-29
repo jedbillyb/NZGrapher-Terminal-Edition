@@ -1,10 +1,10 @@
 {
-  "name": "termgrapher",
+  "name": "nzgrapher-terminal-edition",
   "version": "0.1.0",
   "private": true,
-  "description": "Render NZGrapher statistical charts from the terminal",
+  "description": "NZGrapher Terminal Edition — render NZGrapher statistical charts from the terminal",
   "bin": {
-    "termgrapher": "term/cli.js"
+    "nzgrapher": "term/cli.js"
   },
   "main": "term/render.js",
   "scripts": {
@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jedbillyb/termgrapher.git"
+    "url": "git+https://github.com/jedbillyb/NZGrapher-Terminal-Edition.git"
   },
   "keywords": [
     "nzgrapher",
@@ -27,9 +27,9 @@
   "author": "",
   "license": "SEE LICENCE IN LICENCE.md",
   "bugs": {
-    "url": "https://github.com/jedbillyb/termgrapher/issues"
+    "url": "https://github.com/jedbillyb/NZGrapher-Terminal-Edition/issues"
   },
-  "homepage": "https://github.com/jedbillyb/termgrapher#readme",
+  "homepage": "https://github.com/jedbillyb/NZGrapher-Terminal-Edition#readme",
   "dependencies": {
     "@napi-rs/canvas": "^1.0.3"
   }

@@ -74,4 +74,104 @@ function loadDataset(file) {
 	return buildDataforselector(rows);
 }
 
-module.exports = { parseCSV, buildDataforselector, loadDataset };
+// ---- sampling -----------------------------------------------------------
+/*
+ * Upstream samples by randomly deleting rows from the on-page table until each
+ * level of a single chosen column (#sampleon) has the requested count. That is
+ * stratified sampling, but only ever on one variable.
+ *
+ * Because this port builds the dataset directly rather than scraping the table,
+ * sampling is a plain data operation here — which means it generalises to any
+ * number of stratifying columns (e.g. Species x Gender) and can be seeded for
+ * reproducibility, neither of which the web version can do.
+ */
+
+// mulberry32 — small, fast, and good enough for drawing samples.
+function makeRng(seed) {
+	if (seed === undefined || seed === null || seed === '') {
+		return Math.random;
+	}
+	let a = 0;
+	const s = String(seed);
+	for (let i = 0; i < s.length; i++) a = (a * 31 + s.charCodeAt(i)) >>> 0;
+	a = (a + 0x6d2b79f5) >>> 0;
+	return function () {
+		a |= 0; a = (a + 0x6d2b79f5) | 0;
+		let t = Math.imul(a ^ (a >>> 15), 1 | a);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
+
+const STRATA_SEP = ' / ';
+
+/**
+ * Draw a stratified simple random sample without replacement.
+ *
+ * @param {object} ds        dataset from loadDataset()
+ * @param {string[]} by      columns defining the strata (empty = one stratum)
+ * @param {object} opts
+ *   n     {number}  rows per stratum
+ *   prop  {number}  fraction of each stratum (0-1), proportional allocation
+ *   sizes {object}  explicit per-stratum counts, keyed "Tok / M"
+ *   seed  {*}       makes the draw reproducible
+ * @returns {{dataset: object, strata: Array}}
+ */
+function stratifiedSample(ds, by = [], opts = {}) {
+	const { n, prop, sizes = {}, seed } = opts;
+	const rng = makeRng(seed);
+	const total = ds.rowCount;
+
+	for (const col of by) {
+		if (!Object.prototype.hasOwnProperty.call(ds.dataforselector, col)) {
+			throw new Error(`no such column: ${col}`);
+		}
+	}
+
+	// group row indices by their combination of stratifying values
+	const groups = new Map();
+	for (let r = 0; r < total; r++) {
+		const key = by.length ? by.map((c) => ds.dataforselector[c][r]).join(STRATA_SEP) : 'all';
+		if (!groups.has(key)) groups.set(key, []);
+		groups.get(key).push(r);
+	}
+
+	const keep = [];
+	const strata = [];
+	for (const [key, rows] of groups) {
+		let take;
+		if (Object.prototype.hasOwnProperty.call(sizes, key)) take = Number(sizes[key]);
+		else if (prop !== undefined) take = Math.round(rows.length * prop);
+		else if (n !== undefined) take = Number(n);
+		else take = rows.length;
+
+		take = Math.max(0, Math.min(Math.floor(take), rows.length));
+
+		// partial Fisher-Yates: shuffle only as far as needed
+		const pool = rows.slice();
+		for (let i = 0; i < take; i++) {
+			const j = i + Math.floor(rng() * (pool.length - i));
+			const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+		}
+		const picked = pool.slice(0, take);
+		keep.push(...picked);
+		strata.push({ key, available: rows.length, sampled: take });
+	}
+
+	// keep original file order so the sample reads naturally
+	keep.sort((a, b) => a - b);
+
+	const out = { ' ': [], '': [] };
+	for (const col of ds.columns) {
+		const src = ds.dataforselector[col];
+		out[col] = keep.map((r) => src[r]);
+	}
+
+	strata.sort((a, b) => a.key.localeCompare(b.key));
+	return {
+		dataset: { dataforselector: out, columns: ds.columns.slice(), rowCount: keep.length },
+		strata,
+	};
+}
+
+module.exports = { parseCSV, buildDataforselector, loadDataset, stratifiedSample, STRATA_SEP };
