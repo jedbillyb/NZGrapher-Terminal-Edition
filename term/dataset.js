@@ -81,12 +81,12 @@ function loadDataset(file) {
  * stratified sampling, but only ever on one variable.
  *
  * Because this port builds the dataset directly rather than scraping the table,
- * sampling is a plain data operation here — which means it generalises to any
+ * sampling is a plain data operation here - which means it generalises to any
  * number of stratifying columns (e.g. Species x Gender) and can be seeded for
  * reproducibility, neither of which the web version can do.
  */
 
-// mulberry32 — small, fast, and good enough for drawing samples.
+// mulberry32 - small, fast, and good enough for drawing samples.
 function makeRng(seed) {
 	if (seed === undefined || seed === null || seed === '') {
 		return Math.random;

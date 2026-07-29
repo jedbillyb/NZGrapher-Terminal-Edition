@@ -1,7 +1,7 @@
 'use strict';
 /*
  * Renders a single graph type to a PNG. Kept as its own entry point so callers
- * (notably term/smoke.js) can isolate each render in a subprocess — an
+ * (notably term/smoke.js) can isolate each render in a subprocess - an
  * unsupported canvas op can panic the native skia backend and abort the whole
  * process, which would otherwise hide every result after it.
  *

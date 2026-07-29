@@ -2,7 +2,7 @@
   "name": "nzgrapher-terminal-edition",
   "version": "0.1.0",
   "private": true,
-  "description": "NZGrapher Terminal Edition — render NZGrapher statistical charts from the terminal",
+  "description": "NZGrapher Terminal Edition - render NZGrapher statistical charts from the terminal",
   "bin": {
     "nzgrapher": "term/cli.js"
   },

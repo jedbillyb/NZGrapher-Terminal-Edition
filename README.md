@@ -1,10 +1,10 @@
-# NZGrapher — Terminal Edition
+# NZGrapher - Terminal Edition
 
 Render [NZGrapher](https://grapher.nz/) statistical charts from the terminal.
 
 This is a **personal, unofficial fork** of [mathsnz/NZGrapher](https://github.com/mathsnz/NZGrapher)
 by Jake Wills. It is not affiliated with or endorsed by NZGrapher, and it is not
-a replacement for grapher.nz — it is a command-line front end for personal use.
+a replacement for grapher.nz - it is a command-line front end for personal use.
 
 ```
 nzgrapher Cars -x Price
@@ -14,8 +14,8 @@ nzgrapher Cars -t rerandmedian -x Price -y origin --out rr.png
 
 ## What it actually is
 
-No graphing or statistics code was rewritten. `grapher/js.js` — all 14,975 lines
-of it — is loaded unmodified and executed against a real canvas, so output is
+No graphing or statistics code was rewritten. `grapher/js.js` - all 14,975 lines
+of it - is loaded unmodified and executed against a real canvas, so output is
 **pixel-identical to the web version**: same layout, same statistics, same fonts.
 
 The fork adds a `term/` directory containing only the glue:
@@ -37,7 +37,7 @@ Upstream files are left untouched, so `git pull upstream master` merges cleanly.
 Two properties of the upstream code make this viable rather than a rewrite:
 
 1. **The canvas surface is small.** 1,455 `ctx.*` calls across ~26 distinct
-   methods — no WebGL, no compositing tricks.
+   methods - no WebGL, no compositing tricks.
 2. **Graph state is a flat dictionary.** Dispatch is literally
    `window[$('#type').val()]()`, and every option is read as `$('#id').val()` or
    `.is(':checked')` over ~169 form controls. So the CLI's options map 1:1 onto
@@ -52,7 +52,7 @@ show/hide calls so that logic behaves as it does in a browser.
 ## Requirements
 
 - Node 18+
-- A sixel-capable terminal for inline display — foot, WezTerm, mlterm, Konsole,
+- A sixel-capable terminal for inline display - foot, WezTerm, mlterm, Konsole,
   `xterm -ti vt340`. Without one, use `--out` or `--open`.
 - A sans-serif system font. Upstream asks for Roboto; if it isn't installed the
   best available substitute is registered under that name automatically.
@@ -140,14 +140,14 @@ $ npm run smoke
 26/26 graph types rendered
 ```
 
-That means they execute and produce a canvas — not that every type is
+That means they execute and produce a canvas - not that every type is
 well-exercised. Types expecting a particular data shape (summary-data bar graphs
 and histograms want a frequency column) draw an empty chart until given suitable
 input. The animated teaching tools render their final frame rather than
 animating.
 
 Not yet done: variable filtering and computed variables (upstream's `filterdiv`
-and `newvar*`), `.nzgrapher` session file import — though the format is just
+and `newvar*`), `.nzgrapher` session file import - though the format is just
 `{setval, checkboxes}` over the same control ids, so it maps directly onto
 `--set`/`--on`.
 
@@ -168,13 +168,13 @@ it restricts commercial use, redistribution, and hosting outside this repository
 
 This fork exists on GitHub under GitHub's Terms of Service §D.5, which grants
 users the right to fork public repositories. It is deliberately **not**
-distributed anywhere else — no npm, no package registries, no hosted builds —
+distributed anywhere else - no npm, no package registries, no hosted builds -
 and `package.json` sets `"private": true` to keep it that way.
 
 If you want to use NZGrapher, use the real thing at **[grapher.nz](https://grapher.nz/)**.
 It is free for New Zealand schools and it is where the work actually lives.
 
 Third-party libraries bundled by upstream (jQuery, SheetJS, regression.js,
-html2canvas) carry their own permissive licences — see `THIRD-PARTY-LICENCES.md`.
+html2canvas) carry their own permissive licences - see `THIRD-PARTY-LICENCES.md`.
 
 Upstream's original README is preserved as `README.upstream.md`.

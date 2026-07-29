@@ -1,8 +1,8 @@
 'use strict';
 /*
  * Breadth check: attempt every graph type in the #type list against a bundled
- * dataset and report which render. Crude by design — it binds plausible
- * variables rather than correct ones per type — but it shows how much of the
+ * dataset and report which render. Crude by design - it binds plausible
+ * variables rather than correct ones per type - but it shows how much of the
  * engine the headless shim carries.
  */
 const fs = require('fs');

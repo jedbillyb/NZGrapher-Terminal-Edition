@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 /*
- * NZGrapher Terminal Edition — render NZGrapher charts from the terminal.
+ * NZGrapher Terminal Edition - render NZGrapher charts from the terminal.
  *
  * Output routing (all three produce the same pixels, since the drawing is done
  * by upstream's own engine):
@@ -23,7 +23,7 @@ const ROOT = path.join(__dirname, '..');
 const DATASET_DIR = path.join(ROOT, 'grapher', 'datasets');
 
 function usage() {
-	return `NZGrapher Terminal Edition — NZGrapher charts in your terminal
+	return `NZGrapher Terminal Edition - NZGrapher charts in your terminal
 
 usage: nzgrapher <data.csv> [options]
 
@@ -116,7 +116,7 @@ function parseArgs(argv) {
 				case '--seed': opts.seed = v; break;
 				case '--sample-size': {
 					opts.sampleSizes = opts.sampleSizes || {};
-					// "Tok / M=5,Tok / F=5" — split on the last '=' of each entry so
+					// "Tok / M=5,Tok / F=5" - split on the last '=' of each entry so
 					// stratum names containing '=' still work
 					for (const part of v.split(',')) {
 						const eq = part.lastIndexOf('=');
@@ -253,7 +253,7 @@ async function main() {
 
 	if (opts.listColumns) {
 		const ds = loadDataset(datasetPath);
-		process.stdout.write(`${path.basename(datasetPath)} — ${ds.rowCount} rows\n`);
+		process.stdout.write(`${path.basename(datasetPath)} - ${ds.rowCount} rows\n`);
 		for (const c of ds.columns) {
 			const vals = ds.dataforselector[c];
 			const numeric = vals.filter((v) => v !== '' && !isNaN(Number(v))).length;
@@ -277,7 +277,7 @@ async function main() {
 	for (const id of opts.on) check[id] = true;
 	for (const id of opts.off) check[id] = false;
 
-	// Draw the sample before rendering, so the graph sees only the sampled rows —
+	// Draw the sample before rendering, so the graph sees only the sampled rows -
 	// the same order of operations as the web version.
 	let data;
 	try {

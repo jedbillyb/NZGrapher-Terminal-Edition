@@ -1,6 +1,6 @@
 'use strict';
 /*
- * Parses grapher/index.php and emits term/controls.json — the schema of every
+ * Parses grapher/index.php and emits term/controls.json - the schema of every
  * form control the graphing code reads via $('#id').val() / .prop('checked').
  *
  * Generated rather than hardcoded so that pulling upstream changes into the

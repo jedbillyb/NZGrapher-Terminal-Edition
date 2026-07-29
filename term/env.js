@@ -109,7 +109,7 @@ function createEnv(options = {}) {
 	const canvas = createCanvas(width, height);
 	const ctx = canvas.getContext("2d");
 
-	// js.js assigns `ctx.canvas.width = $('#width').val()` — a string. Guard the
+	// js.js assigns `ctx.canvas.width = $('#width').val()` - a string. Guard the
 	// setters so a string dimension doesn't produce a zero-sized surface.
 	const rawCanvas = canvas;
 
