@@ -157,7 +157,8 @@ and `newvar*`), `.nzgrapher` session file import - though the format is just
 git clone https://github.com/jedbillyb/NZGrapher-Terminal-Edition.git
 cd NZGrapher-Terminal-Edition
 npm install
-node term/cli.js --help
+npm link       # puts `nzgrapher` on your PATH; omit and use `node term/cli.js` instead
+nzgrapher --help
 ```
 
 ## Licence and provenance
