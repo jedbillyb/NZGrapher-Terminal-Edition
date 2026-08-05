@@ -109,16 +109,23 @@ const STRATA_SEP = ' / ';
  * Draw a stratified simple random sample without replacement.
  *
  * @param {object} ds        dataset from loadDataset()
- * @param {string[]} by      columns defining the strata (empty = one stratum)
+ * @param {string[]} by      columns defining the strata (empty = one stratum).
+ *                           When groupSizes is used, by[0] is the group column
+ *                           and the rest are the columns proportionally split
+ *                           within each group.
  * @param {object} opts
- *   n     {number}  rows per stratum
- *   prop  {number}  fraction of each stratum (0-1), proportional allocation
- *   sizes {object}  explicit per-stratum counts, keyed "Tok / M"
- *   seed  {*}       makes the draw reproducible
+ *   n           {number}  rows per stratum
+ *   prop        {number}  fraction of each stratum (0-1), proportional allocation
+ *   sizes       {object}  explicit per-stratum counts, keyed "Tok / M"
+ *   groupSizes  {object}  fixed target per by[0] value, e.g. {Male: 100, Female: 100}.
+ *                         Rows within each group are split across the remaining
+ *                         by[] columns proportionally to their share of that
+ *                         group, rounding each share up - no manual math needed.
+ *   seed        {*}       makes the draw reproducible
  * @returns {{dataset: object, strata: Array}}
  */
 function stratifiedSample(ds, by = [], opts = {}) {
-	const { n, prop, sizes = {}, seed } = opts;
+	const { n, prop, sizes = {}, groupSizes, seed } = opts;
 	const rng = makeRng(seed);
 	const total = ds.rowCount;
 
@@ -126,6 +133,9 @@ function stratifiedSample(ds, by = [], opts = {}) {
 		if (!Object.prototype.hasOwnProperty.call(ds.dataforselector, col)) {
 			throw new Error(`no such column: ${col}`);
 		}
+	}
+	if (groupSizes && !by.length) {
+		throw new Error('groupSizes requires --sample-by with at least one column');
 	}
 
 	// group row indices by their combination of stratifying values
@@ -136,12 +146,26 @@ function stratifiedSample(ds, by = [], opts = {}) {
 		groups.get(key).push(r);
 	}
 
+	// total rows per by[0] value, needed to turn a group's fixed target into
+	// a per-stratum proportional share
+	let groupTotals = null;
+	if (groupSizes) {
+		groupTotals = new Map();
+		for (const rows of groups.values()) {
+			const g = String(ds.dataforselector[by[0]][rows[0]]);
+			groupTotals.set(g, (groupTotals.get(g) || 0) + rows.length);
+		}
+	}
+
 	const keep = [];
 	const strata = [];
 	for (const [key, rows] of groups) {
 		let take;
+		const group = groupSizes ? String(ds.dataforselector[by[0]][rows[0]]) : undefined;
 		if (Object.prototype.hasOwnProperty.call(sizes, key)) take = Number(sizes[key]);
-		else if (prop !== undefined) take = Math.ceil(rows.length * prop);
+		else if (groupSizes && Object.prototype.hasOwnProperty.call(groupSizes, group)) {
+			take = Math.ceil(groupSizes[group] * rows.length / groupTotals.get(group));
+		} else if (prop !== undefined) take = Math.ceil(rows.length * prop);
 		else if (n !== undefined) take = Number(n);
 		else take = rows.length;
 

@@ -12,6 +12,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const crypto = require('crypto');
+const https = require('https');
+const http = require('http');
 const { spawn } = require('child_process');
 
 const { render, graphTypes } = require('./render.js');
@@ -50,6 +53,11 @@ usage: nzgrapher <data.csv> [options]
       --sample-n <n>        rows per stratum
       --sample-prop <f>     fraction of each stratum, 0-1 (proportional)
       --sample-size <spec>  explicit counts: "Tok / M=5,Tok / F=5"
+      --sample-group-size <spec>
+                            fixed target for the FIRST --sample-by column,
+                            auto-split proportionally (rounded up) across the
+                            rest - no manual per-stratum math needed, e.g.
+                            --sample-by Sex,Location --sample-group-size "Male=100,Female=100"
       --seed <v>            reproducible draw
       --show-sample         print the strata table to stderr
 
@@ -67,11 +75,28 @@ folder passed via --dataset-dir or the NZGRAPHER_DATASET_DIR environment
 variable (colon-separated for multiple folders). A path to a CSV file
 always works too.
 
+A dataset may also be an http(s) URL - the CSV is downloaded and cached
+locally. A grapher.nz share link like
+  https://grapher.nz/?folder=sneddon&dataset=GULLS.csv
+is recognised and rewritten to the raw CSV URL automatically.
+
 examples:
   nzgrapher Cars -x Price
   nzgrapher Cars -t scatter -x Weight -y Horsepower --on regression
   nzgrapher Cars -t rerandmedian -x Price -y origin --out rr.png
 `;
+}
+
+// "Tok / M=5,Tok / F=5" -> {'Tok / M': 5, 'Tok / F': 5}. Splits on the last
+// '=' of each entry so stratum names containing '=' still work.
+function parseNameCounts(v, flagName) {
+	const out = {};
+	for (const part of v.split(',')) {
+		const eq = part.lastIndexOf('=');
+		if (eq < 0) throw new Error(`${flagName} expects name=count, got '${part}'`);
+		out[part.slice(0, eq).trim()] = Number(part.slice(eq + 1));
+	}
+	return out;
 }
 
 function parseArgs(argv) {
@@ -83,7 +108,7 @@ function parseArgs(argv) {
 		'-t', '--type', '-x', '--x', '-y', '--y', '-z', '--z', '-c', '--color',
 		'-W', '--width', '-H', '--height', '-s', '--scale', '-o', '--out',
 		'--set', '--on', '--off', '--dataset-dir',
-		'--sample-by', '--sample-n', '--sample-prop', '--sample-size', '--seed',
+		'--sample-by', '--sample-n', '--sample-prop', '--sample-size', '--sample-group-size', '--seed',
 	]);
 
 	for (let i = 0; i < argv.length; i++) {
@@ -120,17 +145,12 @@ function parseArgs(argv) {
 				case '--sample-n': opts.sampleN = Number(v); break;
 				case '--sample-prop': opts.sampleProp = Number(v); break;
 				case '--seed': opts.seed = v; break;
-				case '--sample-size': {
-					opts.sampleSizes = opts.sampleSizes || {};
-					// "Tok / M=5,Tok / F=5" - split on the last '=' of each entry so
-					// stratum names containing '=' still work
-					for (const part of v.split(',')) {
-						const eq = part.lastIndexOf('=');
-						if (eq < 0) throw new Error(`--sample-size expects name=count, got '${part}'`);
-						opts.sampleSizes[part.slice(0, eq).trim()] = Number(part.slice(eq + 1));
-					}
+				case '--sample-size':
+					opts.sampleSizes = { ...(opts.sampleSizes || {}), ...parseNameCounts(v, '--sample-size') };
 					break;
-				}
+				case '--sample-group-size':
+					opts.sampleGroupSizes = { ...(opts.sampleGroupSizes || {}), ...parseNameCounts(v, '--sample-group-size') };
+					break;
 				case '--set': {
 					const eq = v.indexOf('=');
 					if (eq < 0) throw new Error(`--set expects key=value, got '${v}'`);
@@ -157,6 +177,67 @@ function resolveType(name) {
 	const hit = types.find((t) => t.toLowerCase() === lower || t.toLowerCase() === 'new' + lower);
 	if (hit) return hit;
 	throw new Error(`unknown graph type '${name}' (try --list-types)`);
+}
+
+// A grapher.nz "share link" (folder browser URL) points at the app page, not
+// the raw file. The raw CSV for folder=F&dataset=D lives at /F/D directly.
+function normalizeDatasetUrl(u) {
+	try {
+		const parsed = new URL(u);
+		if (/(^|\.)grapher\.nz$/i.test(parsed.hostname)) {
+			const folder = parsed.searchParams.get('folder');
+			const dataset = parsed.searchParams.get('dataset');
+			if (folder && dataset) {
+				return `${parsed.protocol}//${parsed.hostname}/${folder}/${dataset}`;
+			}
+		}
+	} catch {
+		// not a valid URL - fall through unchanged
+	}
+	return u;
+}
+
+function isUrl(s) {
+	return /^https?:\/\//i.test(s);
+}
+
+// Downloads are cached on disk keyed by URL, so repeated runs against the
+// same dataset (e.g. while iterating on a sample) don't re-fetch every time.
+function fetchDataset(url) {
+	return new Promise((resolve, reject) => {
+		const resolved = normalizeDatasetUrl(url);
+		const cacheDir = path.join(os.tmpdir(), 'nzgrapher-url-cache');
+		fs.mkdirSync(cacheDir, { recursive: true });
+		const hash = crypto.createHash('sha1').update(resolved).digest('hex').slice(0, 16);
+		const base = path.basename(new URL(resolved).pathname) || 'dataset.csv';
+		const dest = path.join(cacheDir, `${hash}-${base}`);
+		if (fs.existsSync(dest)) return resolve(dest);
+
+		const get = (u, redirectsLeft) => {
+			const lib = u.startsWith('https:') ? https : http;
+			lib.get(u, (res) => {
+				if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+					res.resume();
+					if (redirectsLeft <= 0) return reject(new Error(`too many redirects fetching ${url}`));
+					return get(new URL(res.headers.location, u).toString(), redirectsLeft - 1);
+				}
+				if (res.statusCode !== 200) {
+					res.resume();
+					return reject(new Error(`failed to fetch ${u}: HTTP ${res.statusCode}`));
+				}
+				const tmp = dest + '.part';
+				const out = fs.createWriteStream(tmp);
+				res.pipe(out);
+				out.on('finish', () => out.close((err) => {
+					if (err) return reject(err);
+					fs.renameSync(tmp, dest);
+					resolve(dest);
+				}));
+				out.on('error', reject);
+			}).on('error', reject);
+		};
+		get(resolved, 5);
+	});
 }
 
 // Custom folders take priority (in the order given) over the bundled set,
@@ -276,7 +357,9 @@ async function main() {
 
 	let datasetPath;
 	try {
-		datasetPath = resolveDataset(opts.dataset, opts.datasetDirs);
+		datasetPath = isUrl(opts.dataset)
+			? await fetchDataset(opts.dataset)
+			: resolveDataset(opts.dataset, opts.datasetDirs);
 	} catch (e) {
 		process.stderr.write(`nzgrapher: ${e.message}\n`);
 		process.exit(1);
@@ -314,12 +397,13 @@ async function main() {
 	try {
 		data = loadDataset(datasetPath);
 		const wantsSample = opts.sampleBy || opts.sampleN !== undefined
-			|| opts.sampleProp !== undefined || opts.sampleSizes;
+			|| opts.sampleProp !== undefined || opts.sampleSizes || opts.sampleGroupSizes;
 		if (wantsSample) {
 			const { dataset: sampled, strata } = stratifiedSample(data, opts.sampleBy || [], {
 				n: opts.sampleN,
 				prop: opts.sampleProp,
 				sizes: opts.sampleSizes || {},
+				groupSizes: opts.sampleGroupSizes,
 				seed: opts.seed,
 			});
 			if (opts.showSample) {
@@ -339,6 +423,17 @@ async function main() {
 
 	let result;
 	try {
+		// The web UI auto-fills the axis-title/colour-label text boxes with the
+		// chosen variable's name when you pick it from the dropdown (see
+		// grapher/index.php's onChange handlers on the variable selects) - the
+		// render engine itself never does this, so without it the terminal
+		// output falls back to the raw "X Axis Title" placeholder. Mirror that
+		// behaviour here, but let an explicit --set win if the user gave one.
+		const axisDefaults = {};
+		if (opts.x && !('xaxis' in opts.set)) axisDefaults.xaxis = opts.x;
+		if (opts.y && !('yaxis' in opts.set)) axisDefaults.yaxis = opts.y;
+		if (opts.color && !('colorlabel' in opts.set)) axisDefaults.colorlabel = opts.color;
+
 		result = render({
 			dataset: data,
 			type,
@@ -346,7 +441,7 @@ async function main() {
 			height,
 			scale: opts.out || opts.stdout ? Math.max(opts.scale, 1) : opts.scale,
 			vars: { xvar: opts.x, yvar: opts.y, zvar: opts.z, color: opts.color },
-			set: opts.set,
+			set: { ...axisDefaults, ...opts.set },
 			check,
 			verbose: opts.verbose,
 		});
