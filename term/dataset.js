@@ -141,7 +141,7 @@ function stratifiedSample(ds, by = [], opts = {}) {
 	for (const [key, rows] of groups) {
 		let take;
 		if (Object.prototype.hasOwnProperty.call(sizes, key)) take = Number(sizes[key]);
-		else if (prop !== undefined) take = Math.round(rows.length * prop);
+		else if (prop !== undefined) take = Math.ceil(rows.length * prop);
 		else if (n !== undefined) take = Number(n);
 		else take = rows.length;
 
