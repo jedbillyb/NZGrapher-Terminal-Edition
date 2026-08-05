@@ -55,12 +55,17 @@ usage: nzgrapher <data.csv> [options]
 
       --list-types      list graph types
       --list-columns    list columns in the dataset
-      --list-datasets   list the bundled datasets
+      --list-datasets   list the available datasets
       --list-options    list every control --set/--on/--off accepts
   -v, --verbose         let upstream's debug logging through
 
+      --dataset-dir <dir>   look for datasets in this folder too (repeatable)
+
 Graph types accept short names: 'dotplot' == 'newdotplot'.
-Datasets resolve from the bundled set by name, e.g. 'Cars'.
+Datasets resolve from the bundled set by name, e.g. 'Cars', or from any
+folder passed via --dataset-dir or the NZGRAPHER_DATASET_DIR environment
+variable (colon-separated for multiple folders). A path to a CSV file
+always works too.
 
 examples:
   nzgrapher Cars -x Price
@@ -71,13 +76,13 @@ examples:
 
 function parseArgs(argv) {
 	const opts = {
-		set: {}, on: [], off: [], scale: 2, verbose: false,
+		set: {}, on: [], off: [], scale: 2, verbose: false, datasetDirs: [],
 	};
 	const positional = [];
 	const needsValue = new Set([
 		'-t', '--type', '-x', '--x', '-y', '--y', '-z', '--z', '-c', '--color',
 		'-W', '--width', '-H', '--height', '-s', '--scale', '-o', '--out',
-		'--set', '--on', '--off',
+		'--set', '--on', '--off', '--dataset-dir',
 		'--sample-by', '--sample-n', '--sample-prop', '--sample-size', '--seed',
 	]);
 
@@ -106,6 +111,7 @@ function parseArgs(argv) {
 				case '-H': case '--height': opts.height = Number(v); break;
 				case '-s': case '--scale': opts.scale = Number(v); break;
 				case '-o': case '--out': opts.out = v; break;
+				case '--dataset-dir': opts.datasetDirs.push(v); break;
 				case '--on': opts.on.push(v); break;
 				case '--off': opts.off.push(v); break;
 				case '--sample-by':
@@ -153,29 +159,51 @@ function resolveType(name) {
 	throw new Error(`unknown graph type '${name}' (try --list-types)`);
 }
 
-// Accept a path, or the name of one of the bundled datasets.
-function resolveDataset(name) {
+// Custom folders take priority (in the order given) over the bundled set,
+// so a user's own dataset can shadow a bundled one of the same name.
+function datasetDirs(extra) {
+	const fromEnv = (process.env.NZGRAPHER_DATASET_DIR || '')
+		.split(path.delimiter)
+		.map((s) => s.trim())
+		.filter(Boolean);
+	return [...(extra || []), ...fromEnv, DATASET_DIR];
+}
+
+// Accept a path, or the name of one of the bundled/custom datasets.
+function resolveDataset(name, dirs) {
 	if (!name) throw new Error('a dataset is required (try --list-datasets)');
 	if (fs.existsSync(name) && fs.statSync(name).isFile()) return name;
-	for (const cand of [name, name + '.csv']) {
-		const p = path.join(DATASET_DIR, cand);
-		if (fs.existsSync(p)) return p;
+	for (const dir of datasetDirs(dirs)) {
+		for (const cand of [name, name + '.csv']) {
+			const p = path.join(dir, cand);
+			if (fs.existsSync(p) && fs.statSync(p).isFile()) return p;
+		}
 	}
-	const avail = listDatasets();
-	const hit = avail.find((d) => d.toLowerCase() === String(name).toLowerCase());
-	if (hit) return path.join(DATASET_DIR, hit + '.csv');
+	const avail = listDatasets(dirs);
+	const hit = avail.find((d) => d.name.toLowerCase() === String(name).toLowerCase());
+	if (hit) return hit.path;
 	throw new Error(`dataset not found: ${name} (try --list-datasets)`);
 }
 
-function listDatasets() {
-	try {
-		return fs.readdirSync(DATASET_DIR)
-			.filter((f) => f.toLowerCase().endsWith('.csv'))
-			.map((f) => f.replace(/\.csv$/i, ''))
-			.sort();
-	} catch {
-		return [];
+// Returns [{ name, path, dir }], de-duplicated by name (first dir wins).
+function listDatasets(dirs) {
+	const seen = new Set();
+	const out = [];
+	for (const dir of datasetDirs(dirs)) {
+		let files;
+		try {
+			files = fs.readdirSync(dir);
+		} catch {
+			continue;
+		}
+		for (const f of files.filter((f) => f.toLowerCase().endsWith('.csv')).sort()) {
+			const name = f.replace(/\.csv$/i, '');
+			if (seen.has(name.toLowerCase())) continue;
+			seen.add(name.toLowerCase());
+			out.push({ name, path: path.join(dir, f), dir });
+		}
 	}
+	return out.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function fitToTerminal(opts) {
@@ -225,7 +253,10 @@ async function main() {
 	}
 
 	if (opts.listDatasets) {
-		for (const d of listDatasets()) process.stdout.write(`  ${d}\n`);
+		for (const d of listDatasets(opts.datasetDirs)) {
+			const from = d.dir === DATASET_DIR ? '' : `  (${d.dir})`;
+			process.stdout.write(`  ${d.name}${from}\n`);
+		}
 		return;
 	}
 
@@ -245,7 +276,7 @@ async function main() {
 
 	let datasetPath;
 	try {
-		datasetPath = resolveDataset(opts.dataset);
+		datasetPath = resolveDataset(opts.dataset, opts.datasetDirs);
 	} catch (e) {
 		process.stderr.write(`nzgrapher: ${e.message}\n`);
 		process.exit(1);
