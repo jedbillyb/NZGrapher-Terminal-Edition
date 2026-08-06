@@ -29,6 +29,7 @@ The fork adds a `term/` directory containing only the glue:
 | `term/cli.js` | argument parsing and output routing |
 | `term/extract-controls.js` | generates `controls.json` from `index.php` |
 | `term/smoke.js` | renders every graph type and reports which succeed |
+| `term/dataset.test.js` | unit tests for CSV parsing and stratified sampling |
 
 Upstream files are left untouched, so `git pull upstream master` merges cleanly.
 
@@ -76,19 +77,59 @@ nzgrapher <data.csv> [options]
 
       --set k=v         set any NZGrapher control (repeatable)
       --on / --off <id> toggle a checkbox option (repeatable)
+      --recode <col>:<old>=<new>
+                        fix a typo'd/misspelled category value before
+                        rendering or sampling (repeatable)
+
+      --dataset-dir <dir>   also look for datasets in this folder (repeatable)
 
   sampling:
       --sample-by <cols>    strata columns, e.g. Species,Gender
       --sample-n <n>        rows per stratum
       --sample-prop <f>     fraction of each stratum (proportional allocation)
       --sample-size <spec>  explicit counts: "Tok / M=5,Tok / F=5"
-      --seed <v>            reproducible draw
+      --sample-group-size <spec>
+                            fixed target for the FIRST --sample-by column,
+                            auto-split across the rest via largest remainder
+                            (so it sums to exactly the target), e.g.
+                            --sample-by Sex,Location --sample-group-size "Male=100,Female=100"
+      --seed <v>            reproducible draw. Omit it and one is generated
+                            and printed to stderr, so the draw is still
+                            reproducible later even when you didn't pick one
       --show-sample         print the strata table
 
       --list-types      list graph types
       --list-columns    list columns in the dataset
-      --list-datasets   list bundled datasets
+      --list-datasets   list bundled + custom datasets
       --list-options    list every control --set/--on/--off accepts
+```
+
+## Datasets
+
+A dataset can be:
+
+- a name from the bundled set (`Cars`, `Kiwi`, `Sharks`, …)
+- a path to any CSV of your own
+- a folder passed via `--dataset-dir` (repeatable) or the
+  `NZGRAPHER_DATASET_DIR` environment variable (`:`-separated for multiple
+  folders) - datasets there are searched first and shadow bundled ones of the
+  same name
+- an `http(s)://` URL - downloaded and cached locally. A grapher.nz share
+  link like `https://grapher.nz/?folder=sneddon&dataset=GULLS.csv` is
+  recognised and rewritten to the raw CSV URL automatically
+
+```sh
+nzgrapher "https://grapher.nz/?folder=sneddon&dataset=GULLS.csv" -x WEIGHT
+```
+
+Downloads are cached under the OS temp dir, so they don't survive a reboot or
+tmp cleanup - if a dataset needs a correction (a typo'd category value, say),
+use `--recode` rather than hand-editing the cached file, since `--recode`
+reapplies on every run regardless of where the file came from:
+
+```sh
+nzgrapher "https://grapher.nz/?folder=sneddon&dataset=GULLS.csv" \
+  --recode LOCATION:MURWAI=MURIWAI -x WEIGHT
 ```
 
 ## Sampling
@@ -118,14 +159,23 @@ from the on-page table:
 - **Any number of stratifying columns.** Upstream's `#sampleon` takes a single
   column; here `--sample-by` takes a list, so `Species,Gender` gives the six
   strata above rather than three or two.
-- **`--seed` makes a draw reproducible**, so a sample can be quoted in write-ups
-  and regenerated later. The web version has no equivalent.
+- **Every draw is reproducible**, so a sample can be quoted in write-ups and
+  regenerated later - something the web version has no equivalent for. Pass
+  `--seed 42` to pick your own, or leave it off and one is generated and
+  printed to stderr (`seed: fdaf3c7b  (pass --seed fdaf3c7b to reproduce this
+  exact sample)`) so you still get a reproducible draw without having to
+  think of a seed up front.
 
 `--sample-prop 0.1` allocates proportionally instead of equally, and
 `--sample-size` sets strata individually when you want unequal allocation.
+`--sample-group-size` covers the common "N per top-level group, split
+proportionally by a second column" case (e.g. 100 male / 100 female,
+proportional by location within each) without doing that arithmetic by hand -
+see `--help`.
 
-Datasets resolve by name from the bundled set (`Cars`, `Kiwi`, `Sharks`, …) or
-by path to any CSV of your own. Graph types accept short names, so `scatter`
+Datasets resolve by name from the bundled set (`Cars`, `Kiwi`, `Sharks`, …), by
+path to any CSV of your own, from a `--dataset-dir`, or from a URL - see
+[Datasets](#datasets) above. Graph types accept short names, so `scatter`
 works as well as `newscatter`.
 
 Because options map onto upstream control ids, anything the web UI can toggle is

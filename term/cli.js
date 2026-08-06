@@ -66,7 +66,9 @@ usage: nzgrapher <data.csv> [options]
                             to exactly its target - no manual per-stratum
                             math needed, e.g.
                             --sample-by Sex,Location --sample-group-size "Male=100,Female=100"
-      --seed <v>            reproducible draw
+      --seed <v>            reproducible draw. If omitted, a random seed is
+                            generated and printed to stderr so you can still
+                            reproduce this exact sample later with --seed
       --show-sample         print the strata table to stderr
 
       --list-types      list graph types
@@ -422,6 +424,13 @@ async function main() {
 		const wantsSample = opts.sampleBy || opts.sampleN !== undefined
 			|| opts.sampleProp !== undefined || opts.sampleSizes || opts.sampleGroupSizes;
 		if (wantsSample) {
+			// A seed makes the draw reproducible, but a seed you never see is
+			// useless for that. If none was given, generate one ourselves so the
+			// randomness still happened - it's just now nameable and rerunnable
+			// with --seed <value>, instead of lost the moment the process exits.
+			const autoSeed = opts.seed === undefined;
+			if (autoSeed) opts.seed = crypto.randomBytes(4).toString('hex');
+
 			const { dataset: sampled, strata } = stratifiedSample(data, opts.sampleBy || [], {
 				n: opts.sampleN,
 				prop: opts.sampleProp,
@@ -429,9 +438,12 @@ async function main() {
 				groupSizes: opts.sampleGroupSizes,
 				seed: opts.seed,
 			});
+			if (autoSeed) {
+				process.stderr.write(`seed: ${opts.seed}  (pass --seed ${opts.seed} to reproduce this exact sample)\n`);
+			}
 			if (opts.showSample) {
 				const by = (opts.sampleBy || []).join(' x ') || '(whole dataset)';
-				process.stderr.write(`sample stratified by ${by}${opts.seed !== undefined ? `, seed ${opts.seed}` : ''}\n`);
+				process.stderr.write(`sample stratified by ${by}, seed ${opts.seed}\n`);
 				for (const s of strata) {
 					process.stderr.write(`  ${s.key.padEnd(24)} ${String(s.sampled).padStart(4)} of ${s.available}\n`);
 				}
