@@ -10,7 +10,8 @@
   "scripts": {
     "controls": "node term/extract-controls.js",
     "smoke": "node term/smoke.js",
-    "test": "node term/smoke.js"
+    "unit": "node term/dataset.test.js",
+    "test": "node term/dataset.test.js && node term/smoke.js"
   },
   "repository": {
     "type": "git",

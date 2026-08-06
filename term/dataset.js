@@ -120,7 +120,10 @@ const STRATA_SEP = ' / ';
  *   groupSizes  {object}  fixed target per by[0] value, e.g. {Male: 100, Female: 100}.
  *                         Rows within each group are split across the remaining
  *                         by[] columns proportionally to their share of that
- *                         group, rounding each share up - no manual math needed.
+ *                         group, using the largest remainder method (floor each
+ *                         share, then hand the leftover places one at a time to
+ *                         the largest fractional parts) so the strata sum to
+ *                         exactly the requested group size - no manual math needed.
  *   seed        {*}       makes the draw reproducible
  * @returns {{dataset: object, strata: Array}}
  */
@@ -157,15 +160,42 @@ function stratifiedSample(ds, by = [], opts = {}) {
 		}
 	}
 
+	// Largest remainder method: floor every stratum's exact proportional share,
+	// then give the leftover places (target - sum of floors) one at a time to
+	// the strata with the biggest fractional part, so each group sums to
+	// exactly its target instead of overshooting the way plain ceil() would.
+	let groupSizeTakes = null;
+	if (groupSizes) {
+		groupSizeTakes = new Map();
+		const byGroup = new Map();
+		for (const [key, rows] of groups) {
+			const g = String(ds.dataforselector[by[0]][rows[0]]);
+			if (!Object.prototype.hasOwnProperty.call(groupSizes, g)) continue;
+			if (!byGroup.has(g)) byGroup.set(g, []);
+			byGroup.get(g).push({ key, count: rows.length });
+		}
+		for (const [g, entries] of byGroup) {
+			const target = Number(groupSizes[g]);
+			const total = groupTotals.get(g);
+			const shares = entries.map(({ key, count }) => {
+				const exact = total ? (target * count) / total : 0;
+				const floor = Math.floor(exact);
+				return { key, take: floor, frac: exact - floor };
+			});
+			let leftover = target - shares.reduce((sum, s) => sum + s.take, 0);
+			const byFrac = shares.slice().sort((a, b) => b.frac - a.frac || a.key.localeCompare(b.key));
+			for (let i = 0; i < byFrac.length && leftover > 0; i++, leftover--) byFrac[i].take += 1;
+			for (const s of shares) groupSizeTakes.set(s.key, s.take);
+		}
+	}
+
 	const keep = [];
 	const strata = [];
 	for (const [key, rows] of groups) {
 		let take;
-		const group = groupSizes ? String(ds.dataforselector[by[0]][rows[0]]) : undefined;
 		if (Object.prototype.hasOwnProperty.call(sizes, key)) take = Number(sizes[key]);
-		else if (groupSizes && Object.prototype.hasOwnProperty.call(groupSizes, group)) {
-			take = Math.ceil(groupSizes[group] * rows.length / groupTotals.get(group));
-		} else if (prop !== undefined) take = Math.ceil(rows.length * prop);
+		else if (groupSizeTakes && groupSizeTakes.has(key)) take = groupSizeTakes.get(key);
+		else if (prop !== undefined) take = Math.ceil(rows.length * prop);
 		else if (n !== undefined) take = Number(n);
 		else take = rows.length;
 

@@ -47,6 +47,12 @@ usage: nzgrapher <data.csv> [options]
       --set k=v         set any NZGrapher control (repeatable)
       --on  <id>        tick a checkbox option (repeatable)
       --off <id>        untick a checkbox option (repeatable)
+      --recode <col>:<old>=<new>
+                        fix a typo'd/misspelled category value before
+                        rendering or sampling (repeatable), e.g.
+                        --recode LOCATION:MURWAI=MURIWAI
+                        Runs every time - unlike hand-editing a downloaded
+                        file, it survives a fresh download or cache clear.
 
  sampling (draw a sample to represent a population):
       --sample-by <cols>    comma-separated strata columns, e.g. Species,Gender
@@ -55,8 +61,10 @@ usage: nzgrapher <data.csv> [options]
       --sample-size <spec>  explicit counts: "Tok / M=5,Tok / F=5"
       --sample-group-size <spec>
                             fixed target for the FIRST --sample-by column,
-                            auto-split proportionally (rounded up) across the
-                            rest - no manual per-stratum math needed, e.g.
+                            auto-split proportionally across the rest using
+                            the largest remainder method, so each group sums
+                            to exactly its target - no manual per-stratum
+                            math needed, e.g.
                             --sample-by Sex,Location --sample-group-size "Male=100,Female=100"
       --seed <v>            reproducible draw
       --show-sample         print the strata table to stderr
@@ -101,13 +109,13 @@ function parseNameCounts(v, flagName) {
 
 function parseArgs(argv) {
 	const opts = {
-		set: {}, on: [], off: [], scale: 2, verbose: false, datasetDirs: [],
+		set: {}, on: [], off: [], scale: 2, verbose: false, datasetDirs: [], recode: [],
 	};
 	const positional = [];
 	const needsValue = new Set([
 		'-t', '--type', '-x', '--x', '-y', '--y', '-z', '--z', '-c', '--color',
 		'-W', '--width', '-H', '--height', '-s', '--scale', '-o', '--out',
-		'--set', '--on', '--off', '--dataset-dir',
+		'--set', '--on', '--off', '--dataset-dir', '--recode',
 		'--sample-by', '--sample-n', '--sample-prop', '--sample-size', '--sample-group-size', '--seed',
 	]);
 
@@ -137,6 +145,14 @@ function parseArgs(argv) {
 				case '-s': case '--scale': opts.scale = Number(v); break;
 				case '-o': case '--out': opts.out = v; break;
 				case '--dataset-dir': opts.datasetDirs.push(v); break;
+				case '--recode': {
+					// "LOCATION:MURWAI=MURIWAI" - column, then old=new
+					const colon = v.indexOf(':');
+					const eq = v.indexOf('=', colon + 1);
+					if (colon < 0 || eq < 0) throw new Error(`--recode expects column:old=new, got '${v}'`);
+					opts.recode.push({ col: v.slice(0, colon), from: v.slice(colon + 1, eq), to: v.slice(eq + 1) });
+					break;
+				}
 				case '--on': opts.on.push(v); break;
 				case '--off': opts.off.push(v); break;
 				case '--sample-by':
@@ -396,6 +412,13 @@ async function main() {
 	let data;
 	try {
 		data = loadDataset(datasetPath);
+		for (const { col, from, to } of opts.recode) {
+			if (!Object.prototype.hasOwnProperty.call(data.dataforselector, col)) {
+				throw new Error(`--recode: no such column: ${col}`);
+			}
+			const vals = data.dataforselector[col];
+			for (let i = 0; i < vals.length; i++) if (vals[i] === from) vals[i] = to;
+		}
 		const wantsSample = opts.sampleBy || opts.sampleN !== undefined
 			|| opts.sampleProp !== undefined || opts.sampleSizes || opts.sampleGroupSizes;
 		if (wantsSample) {
